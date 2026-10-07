@@ -1,0 +1,21 @@
+# MedSafe AI — gitignore
+.env
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+.venv/
+venv/
+*.db
+*.sqlite3
+data/
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+.DS_Store
+Thumbs.db
