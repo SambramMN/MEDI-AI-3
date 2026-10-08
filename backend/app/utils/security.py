@@ -1,31 +1,34 @@
 """
-MedSafe AI — JWT utility functions.
+MedSafe AI — JWT and Password Security Utilities
 """
 
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.config import get_settings
 from app.schemas.auth import TokenData
 
 settings = get_settings()
 
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 # ---------------------------------------------------------------------------
-# Password helpers
+# Password helpers (Direct bcrypt implementation, avoiding passlib 72-byte bug)
 # ---------------------------------------------------------------------------
 
 def hash_password(plain: str) -> str:
-    return _pwd_context.hash(plain)
+    pwd_bytes = plain.encode("utf-8")[:72]
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return _pwd_context.verify(plain, hashed)
+    try:
+        pwd_bytes = plain.encode("utf-8")[:72]
+        return bcrypt.checkpw(pwd_bytes, hashed.encode("utf-8"))
+    except Exception:
+        return False
 
 
 # ---------------------------------------------------------------------------
@@ -47,7 +50,7 @@ def create_access_token(user_id: str, email: str) -> str:
 
 
 def decode_token(token: str) -> Optional[TokenData]:
-    """Decode and validate a JWT.  Returns None if invalid or expired."""
+    """Decode and validate a JWT. Returns None if invalid or expired."""
     try:
         payload = jwt.decode(
             token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]

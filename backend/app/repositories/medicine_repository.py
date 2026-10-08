@@ -5,7 +5,7 @@ Encapsulates all database queries for medicines.
 
 from typing import List, Optional, Tuple
 
-from sqlalchemy import func, or_
+from sqlalchemy import String, func, or_
 from sqlalchemy.orm import Session
 
 from app.models.models import Medicine, Search
@@ -30,7 +30,7 @@ class MedicineRepository:
                 func.lower(Medicine.brand_name).contains(q),
                 func.lower(Medicine.generic_name).contains(q),
                 # JSON array cast to text for ingredient search
-                func.cast(Medicine.active_ingredients, db.bind.dialect.name == "postgresql" and "text" or "TEXT").contains(q),
+                func.cast(Medicine.active_ingredients, String).contains(q),
             )
         )
         total = base.count()

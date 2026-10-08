@@ -18,7 +18,11 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
-from sqlalchemy.dialects.postgresql import JSON, UUID
+from sqlalchemy import JSON
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+
+def UUID(as_uuid=False):
+    return String(36).with_variant(PG_UUID(as_uuid=as_uuid), "postgresql")
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
